@@ -21,7 +21,7 @@ exports.handler = async function (event) {
     }
 
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/interactions",
       {
         method: "POST",
 
@@ -31,23 +31,12 @@ exports.handler = async function (event) {
         },
 
         body: JSON.stringify({
-          systemInstruction: {
-            parts: [
-              {
-                text: "You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly, accurately, and in simple English. Help with accounting, school work, technology, general questions, and everyday tasks."
-              }
-            ]
-          },
+          model: "gemini-3.8-flash",
 
-          contents: [
-            {
-              parts: [
-                {
-                  text: question
-                }
-              ]
-            }
-          ]
+          input: question,
+
+          system_instruction:
+            "You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly, accurately, and in simple English. Help with accounting, school work, technology, general questions, and everyday tasks."
         })
       }
     );
@@ -66,12 +55,11 @@ exports.handler = async function (event) {
     }
 
     const answer =
-      data.candidates?.[0]?.content?.parts
-        ?.map(part => part.text || "")
-        .join("")
-        .trim();
+      data.output_text ||
+      data.outputs?.map(item => item.text || "").join("") ||
+      "";
 
-    if (!answer) {
+    if (!answer.trim()) {
       return {
         statusCode: 500,
         body: JSON.stringify({
@@ -83,7 +71,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        answer: answer
+        answer: answer.trim()
       })
     };
 
