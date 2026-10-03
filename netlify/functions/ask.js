@@ -2,12 +2,14 @@ exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: "Method Not Allowed"
+      body: JSON.stringify({
+        error: "Method Not Allowed"
+      })
     };
   }
 
   try {
-    const { question } = JSON.parse(event.body);
+    const { question } = JSON.parse(event.body || "{}");
 
     if (!question || !question.trim()) {
       return {
@@ -20,15 +22,19 @@ exports.handler = async function (event) {
 
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
+
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
       },
-      body: JSON.stringify({
-        model: "gpt-5.6-mini",
-        input: `You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly and simply.
 
-User question: ${question}`
+      body: JSON.stringify({
+        model: "gpt-4.1-mini",
+
+        instructions:
+          "You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly, accurately, and in simple English. Help with accounting, school work, technology, general questions, and everyday tasks.",
+
+        input: question
       })
     });
 
@@ -46,7 +52,7 @@ User question: ${question}`
     return {
       statusCode: 200,
       body: JSON.stringify({
-        answer: data.output_text
+        answer: data.output_text || "I couldn't generate an answer."
       })
     };
 
@@ -54,7 +60,7 @@ User question: ${question}`
     return {
       statusCode: 500,
       body: JSON.stringify({
-        error: "Something went wrong."
+        error: error.message || "Something went wrong."
       })
     };
   }
