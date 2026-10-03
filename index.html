@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Victor AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
 
+    .box {
+      max-width: 500px;
+      margin: 50px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    p {
+      color: #666;
+    }
+
+    input {
+      width: 90%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      background: #222;
+      color: white;
+      font-size: 16px;
+    }
+
+    #answer {
+      margin-top: 20px;
+      text-align: left;
+      padding: 15px;
+      background: #f7f7f7;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <h1>🤖 Victor AI</h1>
+    <p>Your Personal AI Assistant</p>
+
+    <input id="question" placeholder="Ask Victor AI anything...">
+
+    <br>
+
+    <button onclick="askVictor()">Ask Victor AI</button>
+
+    <div id="answer">
+      Victor AI is ready. Ask me a question!
+    </div>
+  </div>
+
+  <script>
+    function askVictor() {
+      const question = document.getElementById("question").value;
+
+      if (question.trim() === "") {
+        document.getElementById("answer").innerText =
+          "Please type a question first.";
+        return;
+      }
+
+      document.getElementById("answer").innerText =
+        "Victor AI is thinking... 🧠";
+    }
+  </script>
+
+</body>
+</html>
