@@ -20,23 +20,37 @@ exports.handler = async function (event) {
       };
     }
 
-    const response = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-      },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": process.env.GEMINI_API_KEY
+        },
 
-      body: JSON.stringify({
-        model: "gpt-4.1-mini",
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [
+              {
+                text: "You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly, accurately, and in simple English. Help with accounting, school work, technology, general questions, and everyday tasks."
+              }
+            ]
+          },
 
-        instructions:
-          "You are Victor AI, a helpful general AI assistant and Accountancy/Student specialist. Answer clearly, accurately, and in simple English. Help with accounting, school work, technology, general questions, and everyday tasks.",
-
-        input: question
-      })
-    });
+          contents: [
+            {
+              parts: [
+                {
+                  text: question
+                }
+              ]
+            }
+          ]
+        })
+      }
+    );
 
     const data = await response.json();
 
@@ -44,7 +58,24 @@ exports.handler = async function (event) {
       return {
         statusCode: response.status,
         body: JSON.stringify({
-          error: data.error?.message || "OpenAI request failed."
+          error:
+            data.error?.message ||
+            "Gemini API request failed."
+        })
+      };
+    }
+
+    const answer =
+      data.candidates?.[0]?.content?.parts
+        ?.map(part => part.text || "")
+        .join("")
+        .trim();
+
+    if (!answer) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: "Gemini did not return an answer."
         })
       };
     }
@@ -52,7 +83,7 @@ exports.handler = async function (event) {
     return {
       statusCode: 200,
       body: JSON.stringify({
-        answer: data.output_text || "I couldn't generate an answer."
+        answer: answer
       })
     };
 
