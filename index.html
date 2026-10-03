@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Victor AI</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -19,6 +21,7 @@
       background: white;
       padding: 25px;
       border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     }
 
     h1 {
@@ -36,6 +39,7 @@
       border-radius: 8px;
       margin-top: 15px;
       box-sizing: border-box;
+      font-size: 16px;
     }
 
     button {
@@ -49,6 +53,10 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+    }
+
     #answer {
       margin-top: 20px;
       text-align: left;
@@ -56,6 +64,8 @@
       background: #f7f7f7;
       border-radius: 8px;
       min-height: 30px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
   </style>
 </head>
@@ -63,62 +73,116 @@
 <body>
 
   <div class="box">
+
     <h1>🤖 Victor AI</h1>
+
     <p>Your Personal AI Assistant</p>
 
     <input
       id="question"
+      type="text"
       placeholder="Ask Victor AI anything..."
     >
 
     <br>
 
-    <button onclick="askVictor()">
+    <button id="askButton" onclick="askVictor()">
       Ask Victor AI
     </button>
 
     <div id="answer">
       Victor AI is ready. Ask me a question!
     </div>
+
   </div>
 
+
   <script>
+
     async function askVictor() {
-      const question = document.getElementById("question").value;
-      const answer = document.getElementById("answer");
+
+      const question =
+        document.getElementById("question").value;
+
+      const answer =
+        document.getElementById("answer");
+
+      const button =
+        document.getElementById("askButton");
+
 
       if (question.trim() === "") {
-        answer.innerText = "Please type a question first.";
+
+        answer.innerText =
+          "Please type a question first.";
+
         return;
       }
 
-      answer.innerText = "Victor AI is thinking... 🧠";
+
+      answer.innerText =
+        "Victor AI is thinking... 🧠";
+
+      button.disabled = true;
+
 
       try {
-        const response = await fetch("/.netlify/functions/ask", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            question: question
-          })
-        });
+
+        const response = await fetch(
+          "/.netlify/functions/ask",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              question: question
+            })
+          }
+        );
+
 
         const data = await response.json();
 
+
         if (!response.ok) {
-          throw new Error(data.error || "Something went wrong.");
+
+          throw new Error(
+            data.error ||
+            "The AI server returned an error."
+          );
         }
 
-        answer.innerText = data.answer;
+
+        if (!data.answer) {
+
+          throw new Error(
+            "The server did not return an answer."
+          );
+        }
+
+
+        answer.innerText =
+          data.answer;
+
 
       } catch (error) {
+
         answer.innerText =
-          "Sorry, something went wrong. Please try again.";
+          "ERROR: " + error.message;
+
+      } finally {
+
+        button.disabled = false;
+
       }
+
     }
+
   </script>
 
 </body>
+
 </html>
